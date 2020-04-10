@@ -38,6 +38,29 @@
     </div>
   </div>
 
+
+  <!-- 静态页面模拟框 -->
+  <div class="modal fade" tabindex="-1" id="myModal" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">温馨提示</h4>
+        </div>
+        <div class="modal-body">
+          <p>One fine body&hellip;</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">确定</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+
+  <!-- 引入http文件 -->
+  <script src="./libs/http.js"></script>
   <script>
     //入口函数
     $(function () {
@@ -50,13 +73,16 @@
         var password = $('.input_pass').val().trim()
         //非空判断
         if (username == '' || password == '') {
-          alert('用户名和密码不能为空');
+          // alert('用户名和密码不能为空');
+          //弹出提示框
+          $('#myModal .modal-body>p').text('用户名和密码不能为空')
+          $('#myModal').modal()
           return
         }
         //请求ajax 
         $.ajax({
           type: 'post',
-          url: 'http://localhost:8080/api/v1/admin/user/login',
+          url: BigNew.user_login,
           data: {
             username: username,
             password: password
@@ -64,11 +90,23 @@
           success: function (backData) {
             console.log(backData);
             if (backData.code == 200) {
-              alert('登录成功');
-              //跳转首页
-              window.location.href = './index.html'
+              // alert('登录成功');
+              //弹出提示框 
+              $('#myModal .modal-body>p').text('登录成功')
+              $('#myModal').modal()
+              $('#myModal').on('hidden.bs.modal', function (e) {
+                // do something...
+
+                //保存token 到本地存储
+                localStorage.setItem('token', backData.token)
+                //跳转首页  需要在弹出提示框事件之后再执行
+                window.location.href = './index.html'
+              })
             } else {
-              alert('用户名或密码错误 ');
+              // alert('用户名或密码错误 ');
+              //弹出提示框
+              $('#myModal .modal-body>p').text('用户名或密码错误')
+              $('#myModal').modal()
             }
 
           }
