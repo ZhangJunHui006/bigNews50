@@ -24,7 +24,7 @@
                 <div class="form-group">
                     <label for="inputEmail1" class="col-sm-2 control-label">用户名称：</label>
                     <div class="col-sm-4">
-                        <input type="text" name="username" class="form-control username" id="inputEmail1" value="李思思">
+                        <input type="text" name="username" class="form-control username" id="inputEmail1" value="张俊辉">
                     </div>
                 </div>
                 <div class="form-group">
@@ -68,6 +68,39 @@
             </form>
         </div>
     </div>
+
+    <!-- 引入http文件 -->
+    <script src="./libs/http.js"></script>
+    <script>
+        $(function () {
+            //图片预览功能
+            $("#exampleInputFile").on('change', function () {
+                //获取文件
+                var file = this.files[0]
+                //转url
+                var url = URL.createObjectURL(file)
+                //设置url路径给img 的 src属性
+                $(this).prev().attr('src', url)
+            })
+
+            //请求ajax获取数据  直接渲染数据到页面
+            $.ajax({
+                url: BigNew.user_detail,
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        console.log(1);
+                        $('#inputEmail1').val(backData.data.username)
+                        $('#inputEmail2').val(backData.data.nickname)
+                        $('#inputEmail3').val(backData.data.email)
+                        $('#inputEmail4').val(backData.data.password)
+                        $('#exampleInputFile').prev().attr('src', backData.data.userPic)
+                    }
+                }
+            })
+        })
+    </script>
+
 </body>
 
 </html>

@@ -25,21 +25,48 @@
         </div>
         <!-- 左侧导航栏 -->
         <div class="menu">
-            <div class="level01 active"><a href="#" target="main_frame"><i
-                        class="iconfont icon-yidiandiantubiao04"></i><span>首页</span></a></div>
-            <div class="level01"><a href="#"><i class="iconfont icon-icon-article"></i><span>文章管理</span><b
-                        class="iconfont icon-arrowdownl"></b></a></div>
+            <div class="level01 active">
+                <!-- 首页统计页面 -->
+                <a href="./main_count.html" target="main_frame">
+                    <i class="iconfont icon-yidiandiantubiao04"></i>
+                    <span>首页</span>
+                </a>
+            </div>
+            <div class="level01">
+                <!-- 文章管理 -->
+                <a href="article_list.html" target="main_frame">
+                    <i class="iconfont icon-icon-article"></i>
+                    <span>文章管理</span>
+                    <b class="iconfont icon-arrowdownl"></b>
+                </a>
+            </div>
             <ul class="level02">
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章列表</span></a></li>
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>发表文章</span></a></li>
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章类别管理</span></a>
+                <!-- 文章列表 -->
+                <li><a href="article_list.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>文章列表</span></a></li>
+                <!-- 发表文章 -->
+                <li><a href="./article_release.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>发表文章</span></a></li>
+                <!-- 文章类别管理 -->
+                <li><a href="./article_category.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>文章类别管理</span></a>
                 </li>
             </ul>
 
-            <div class="level01"><a href="#" target="main_frame"><i
-                        class="iconfont icon-comment"></i><span>评论管理</span></a></div>
-            <div class="level01" id="user"><a href="#" target="main_frame"><i
-                        class="iconfont icon-user"></i><span>个人中心</span></a></div>
+            <div class="level01">
+                <!-- 评论管理 -->
+                <a href="./comment_list.html" target="main_frame">
+                    <i class="iconfont icon-comment"></i>
+                    <span>评论管理</span>
+                </a>
+            </div>
+            <div class="level01" id="user">
+                <!-- 个人中心 -->
+                <a href="./user.html" target="main_frame">
+                    <i class="iconfont icon-user"></i>
+                    <span>个人中心</span>
+                </a>
+            </div>
         </div>
         <!-- 顶部栏 -->
         <div class="header_bar">
@@ -51,7 +78,8 @@
         </div>
         <!-- 右侧主体内容 -->
         <div class="main" id="main_body">
-
+            <iframe name="main_frame" src="./main_count.html" frameborder="0"
+                style="width: 100%; height: 100%;"></iframe>
         </div>
     </div>
 
@@ -82,6 +110,28 @@
                     window.location.href = './login.html'
                 }
             })
+
+
+            // 左侧导航栏点击a标签高亮效果
+            $('.level01').on('click', function () {
+                $(this).addClass('active').siblings().removeClass('active')
+                //判断是否包含 某个类  返回true 或false
+                if ($(this).next().hasClass('level02')) {
+                    //设置划入画出效果
+                    $(this).next().slideToggle()
+                    //图标旋转 90度  添加 rotate0类  切换效果
+                    $(this).find('b').toggleClass('rotate0')
+                    //选中第一个对象 点击
+                    $('.level02>li>a').first().trigger('click')
+                }
+            })
+            $('.level02>li').on('click', function () {
+                //li 标签点击事件 
+                $(this).addClass('active').siblings().removeClass('active')
+            })
+
+          
+
         })
     </script>
 </body>
