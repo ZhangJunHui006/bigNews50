@@ -64,6 +64,7 @@
                 </div>
                 <div class="modal-body">
                     <form>
+                        <input type="hidden" name="" id="id">
                         <div class="form-group">
                             <label for="recipient-name" class="control-label">文章分类名称:</label>
                             <input type="text" class="form-control" id="recipient-name">
@@ -91,7 +92,7 @@
             <td>{{$value.slug}}</td>
             <td class="text-center">
                 <a href="javascript:void(0)" data-id="{{$value.id}}" data-toggle="modal" data-target="#myModal" class=" btn btn-info btn-xs">编辑</a>
-                <a href="javascript:void(0)" data-id="{{$value.id}}" class="btn btn-danger btn-xs">删除</a>
+                <a href="javascript:void(0)" data-id="{{$value.id}}"  class="btn btn-danger btn-xs delete">删除</a>
             </td>
         </tr>
         {{/each}}
@@ -104,7 +105,7 @@
                 $.ajax({
                     url: BigNew.category_list,
                     success: function (back) {
-                        console.log(back);
+                        // console.log(back);
                         if (back.code == 200) {
                             var res = template('sb', back)
                             $('tbody').html(res)
@@ -117,7 +118,7 @@
             //获取到点击的时候模拟框是哪个元素
             $('#myModal').on('show.bs.modal', function (e) {
                 // do something...
-                console.log(e.relatedTarget);
+                // console.log(e.relatedTarget);
                 //判断是否点击的是 新增按钮 
                 if (e.relatedTarget == $('#xinzengfenlei')[0]) {
                     // console.log(1);
@@ -135,9 +136,101 @@
                     //当前的文本内容给到输入框
                     $('#recipient-name').val($(e.relatedTarget).parent().prev().prev().text())
                     $('#message-text').val($(e.relatedTarget).parent().prev().text())
+                    //这是id
+                    $('#id').val($(e.relatedTarget).attr('data-id'))
                 }
             })
 
+
+            //点击新增,编辑事件
+            $('.con').on('click', function () {
+                //判断点击的是哪个内容 
+                //判读是否包含btn-primary 这个类, 有就说明是新增    
+                if ($(this).hasClass('btn-primary')) {
+                    // console.log(123);
+                    //获取到输入框内容
+                    var name = $("#recipient-name").val().trim()
+                    var txt = $("#message-text").val().trim()
+                    //非空判断
+                    if (name == '' || txt == '') {
+                        alert('不能为空');
+                        $('#myModal').modal('hide')
+                        return
+                    }
+                    //请求ajax 
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.category_add,
+                        data: {
+                            name: name,
+                            slug: txt
+                        },
+                        success: function (back) {
+                            // console.log(back);
+                            if (back.code == 201) {
+                                alert('创建成功');
+                                //关闭模拟框
+                                $('#myModal').modal('hide')
+                                get()
+                            }
+                        }
+                    })
+                } else {
+                    // console.log(456);
+                    var name = $("#recipient-name").val().trim()
+                    var txt = $("#message-text").val().trim()
+                    //id获取 
+                    var id = $('#id').val()
+                    //非空判断
+                    if (name == '' || txt == '') {
+                        alert('不能为空');
+                        return
+                    }
+                    //请求ajax 
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.category_edit,
+                        data: {
+                            id: id,
+                            name: name,
+                            slug: txt
+                        },
+                        success: function (back) {
+                            // console.log(back);
+                            if (back.code == 200) {
+                                alert('修改成功');
+                                $('#myModal').modal('hide')
+                                get()
+                            }
+                        }
+                    })
+                }
+            })
+
+
+            //删除
+            //必须是委托事件
+            $('tbody').on('click', '.delete', function () {
+                var that = $(this)
+                if (confirm('确定要删除吗?')) {
+                    var id = $(this).attr('data-id')
+                    // console.log(id);
+
+                    //请求ajax
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.category_delete,
+                        data: {
+                            id: id
+                        },
+                        success: function (back) {
+                            if (back.code == 204) {
+                                that.parents('tr').remove()
+                            }
+                        }
+                    })  
+                }
+            })
 
         })
     </script>
