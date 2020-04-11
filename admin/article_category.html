@@ -35,7 +35,8 @@
                         <td>奇趣事</td>
                         <td>funny</td>
                         <td class="text-center">
-                            <a href="javascript:void(0)" data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
+                            <a href="javascript:void(0)" data-toggle="modal" data-target="#myModal"
+                                class=" btn btn-info btn-xs">编辑</a>
                             <a href="javascript:void(0)" class="btn btn-danger btn-xs">删除</a>
                         </td>
                     </tr>
@@ -51,5 +52,95 @@
             </table>
         </div>
     </div>
+
+    <!-- 模态框 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">New message</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">文章分类名称:</label>
+                            <input type="text" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">文章分类别名:</label>
+                            <input class="form-control" id="message-text"></input>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary con">Send message</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="./libs/http.js"></script>
+    <script id="sb" type="text/html">
+        {{each data}}
+        <tr>
+            <td>{{$value.name}}</td>
+            <td>{{$value.slug}}</td>
+            <td class="text-center">
+                <a href="javascript:void(0)" data-id="{{$value.id}}" data-toggle="modal" data-target="#myModal" class=" btn btn-info btn-xs">编辑</a>
+                <a href="javascript:void(0)" data-id="{{$value.id}}" class="btn btn-danger btn-xs">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+
+    <script>
+        $(function () {
+            //获取数据
+            function get() {
+                $.ajax({
+                    url: BigNew.category_list,
+                    success: function (back) {
+                        console.log(back);
+                        if (back.code == 200) {
+                            var res = template('sb', back)
+                            $('tbody').html(res)
+                        }
+                    }
+                })
+            }
+            get()
+
+            //获取到点击的时候模拟框是哪个元素
+            $('#myModal').on('show.bs.modal', function (e) {
+                // do something...
+                console.log(e.relatedTarget);
+                //判断是否点击的是 新增按钮 
+                if (e.relatedTarget == $('#xinzengfenlei')[0]) {
+                    // console.log(1);
+                    //更改文本
+                    $("#exampleModalLabel").text('新增分类')
+                    //添加背景按钮颜色类
+                    $('.con').text('新增').addClass('btn-primary').removeClass('btn-success')
+
+                    //reset() 方法可把表单中的元素重置为它们的默认值。 方法是dom对象的方法
+                    $(".modal-body form")[0].reset()
+                } else {
+                    $("#exampleModalLabel").text('修改分类')
+                    $('.con').text('编辑').addClass('btn-success').removeClass('btn-primary')
+
+                    //当前的文本内容给到输入框
+                    $('#recipient-name').val($(e.relatedTarget).parent().prev().prev().text())
+                    $('#message-text').val($(e.relatedTarget).parent().prev().text())
+                }
+            })
+
+
+        })
+    </script>
+</body>
 
 </html>
