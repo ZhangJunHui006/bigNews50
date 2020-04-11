@@ -44,7 +44,7 @@
                     <label for="inputPassword3" class="col-sm-2 control-label">用户图标：</label>
                     <div class="col-sm-10">
                         <img src="images/2.jpg" alt="" class="user_pic">
-                        <input style="display: block" name="userPic" type="file" id="exampleInputFile">
+                        <!-- <input style="display: block" name="userPic" type="file" id="exampleInputFile"> -->
                         <!-- 给label标签的for属性赋值,值是input标签的id,那这样的话点击label就相当于点击了input -->
                         <br>
                         <label for="exampleInputFile">
@@ -68,6 +68,7 @@
             </form>
         </div>
     </div>
+
 
     <!-- 引入http文件 -->
     <script src="./libs/http.js"></script>
@@ -97,6 +98,40 @@
                         $('#exampleInputFile').prev().attr('src', backData.data.userPic)
                     }
                 }
+            })
+
+            //编辑
+            //点击事件
+            $('.btn-edit').on('click', function (e) {
+                //阻止默认事件
+                e.preventDefault()
+                //formData
+                var fd = new FormData($('#form')[0])
+                //请求ajax
+                $.ajax({
+                    type: 'post',
+                    url: BigNew.user_edit,
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (back) {
+                        console.log(back);
+                        if (back.code == 200) {
+                            alert('修改成功');
+                            $.ajax({
+                                url: BigNew.user_info,
+                                success: function (backData) {
+                                    console.log(backData);
+                                    if (backData.code == 200) {
+                                        parent.$('.user_info>img').attr('src', backData.data.userPic)
+                                        parent.$('.user_info>span>i').text(backData.data.nickname)
+                                        parent.$('.user_center_link>img').attr('src', backData.data.userPic)
+                                    }
+                                }
+                            })
+                        }
+                    }
+                })
             })
         })
     </script>
