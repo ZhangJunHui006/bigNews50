@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="./css/iconfont.css">
     <link rel="stylesheet" href="./css/main.css">
     <script src="./libs/jquery-1.12.4.min.js"></script>
+    <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="./libs/jquery.twbsPagination.min.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
 </head>
@@ -69,6 +71,8 @@
                 </tbody>
             </table>
             <div class="row text-center">
+                <ul class="pagination" id="pagination"></ul>
+                <p>没有数据</p>
             </div>
         </div>
     </div>
@@ -95,6 +99,98 @@
         {{/each}}
     </script>
     <script src="./libs/http.js"></script>
+    <!-- <script>
+        //入口函数
+        $(function () {
+            //显示下拉菜单数据
+            $.ajax({
+                url: BigNew.category_list,
+                success: function (back) {
+                    // console.log(back);
+                    if (back.code == 200) {
+                        var res = template('sb', back)
+                        $('#selCategory').html(res)
+                        // console.log(res);
+                    }
+                }
+            })
+
+
+            //显示文章数据
+            $.ajax({
+                url: BigNew.article_query,
+                data: {
+                    type: $('#selCategory').val(),
+                    state: $('#selStatus').val(),
+                    page: 1,
+                    perpage: 6
+                },
+                success: function (back) {
+                    // console.log(back);
+                    if (back.code == 200) {
+                        $('tbody').html(template('sb1', back))
+
+                        //分页
+                        $('#pagination').twbsPagination({
+                            totalPages: back.data.totalPage,
+                            visiblePages: 6,
+                            first: '首页',
+                            prev: '上一页',
+                            next: '下一页',
+                            last: '尾页',
+                            onPageClick: function (event, page) {
+                                // $('#page-content').text('Page ' + page);
+                                //调用ajax 获取当前页码
+                                $.ajax({
+                                    url: BigNew.article_query,
+                                    data: {
+                                        type: $('#selCategory').val(),
+                                        state: $('#selStatus').val(),
+                                        page: page,
+                                        perpage: 6
+                                    },
+                                    success: function (back) {
+                                        console.log(back);
+                                        if (back.code == 200) {
+                                            $('tbody').html(template('sb1', back))
+                                        }
+                                    }
+                                })
+                            }
+                        });
+                    }
+                }
+            })
+
+            //筛选文章
+            $("#btnSearch").on('click', function (e) {
+                //阻止默认跳转
+                e.preventDefault()
+                //显示文章数据
+                $.ajax({
+                    url: BigNew.article_query,
+                    data: {
+                        type: $('#selCategory').val(),
+                        state: $('#selStatus').val(),
+                        page: 1,
+                        perpage: 6
+                    },
+                    success: function (back) {
+                        console.log(back);
+                        if (back.code == 200) {
+                            $('tbody').html(template('sb1', back))
+                            $('#pagination').twbsPagination('changeTotalPages', back.data.totalPage, 1)
+                        }
+                    }
+                })
+            })
+        })
+
+    </script> -->
+
+
+
+    <!-- 封装函数写法 -->
     <script>
         //入口函数
         $(function () {
@@ -111,44 +207,79 @@
                 }
             })
 
-            //显示文章数据
-            $.ajax({
-                url: BigNew.article_query,
-                data: {
-                    type: $('#selCategory').val(),
-                    state: $('#selStatus').val(),
-                    page: 1,
-                    perpage: 6
-                },
-                success: function (back) {
-                    console.log(back);
-                    if (back.code == 200) {
-                        $('tbody').html(template('sb1', back))
+
+            //显示文章数据  函数 
+
+            function getData(myPage, callback) {
+                $.ajax({
+                    url: BigNew.article_query,
+                    data: {
+                        type: $('#selCategory').val(),
+                        state: $('#selStatus').val(),
+                        page: myPage,
+                        perpage: 6
+                    },
+                    success: function (back) {
+                        // console.log(back);
+                        if (back.code == 200) {
+                            $('tbody').html(template('sb1', back))
+
+                            if (callback != null && back.data.data.length != 0) {
+                                $("#pagination").show().next('p').hide()
+                                // callback(back)
+                            } else if (back.data.data.length == 0) {
+                                $("#pagination").hide().next('p').show()
+                            }
+                        }
                     }
-                }
+                })
+            }
+            getData(1, function (back) {
+                //分页
+                $('#pagination').twbsPagination({
+                    totalPages: back.data.totalPage,
+                    visiblePages: 6,
+                    first: '首页',
+                    prev: '上一页',
+                    next: '下一页',
+                    last: '尾页',
+                    onPageClick: function (event, page) {
+                        // $('#page-content').text('Page ' + page);
+                        //调用ajax 获取当前页码
+                        getData(page, null)
+                    }
+                });
             })
 
             //筛选文章
             $("#btnSearch").on('click', function (e) {
-
                 //阻止默认跳转
                 e.preventDefault()
                 //显示文章数据
-            $.ajax({
-                url: BigNew.article_query,
-                data: {
-                    type: $('#selCategory').val(),
-                    state: $('#selStatus').val(),
-                    page: 1,
-                    perpage: 6
-                },
-                success: function (back) {
-                    console.log(back);
-                    if (back.code == 200) {
-                        $('tbody').html(template('sb1', back))
-                    }
-                }
+                getData(1, function (back) {
+                    $('#pagination').twbsPagination('changeTotalPages', back.data.totalPage, 1)
+                })
             })
+
+
+            //删除
+            $('tbody').on('click', '.delete', function () {
+                //请求ajax删除
+                // console.log($(this).attr('data-id'));
+                var num = parseInt($(this).attr('data-id'))
+                console.log(num);
+                
+                $.ajax({
+                    type: 'post',
+                    url: BigNew.category_delete,
+                    data: {
+                        id: num
+                    },
+                    success: function (back) {
+                        console.log(back);
+                        
+                    }
+                })
             })
         })
     </script>
