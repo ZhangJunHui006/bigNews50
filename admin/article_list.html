@@ -72,6 +72,86 @@
             </div>
         </div>
     </div>
+    <script id="sb" type="text/html">
+        <option value="">所有分类</option>
+        {{each data}}
+        <option value="{{$value.id}}">{{$value.name}}</option>
+        {{/each}}
+    </script>
+
+    <script id="sb1" type="text/html">
+        {{each data.data v}}
+        <tr>
+            <td>{{v.title}}</td>
+            <td>{{v.author}}</td>
+            <td>{{v.category}}</td>
+            <td class="text-center">{{v.date}}</td>
+            <td class="text-center">{{v.state}}</td>
+            <td class="text-center">
+                <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
+                <a href="javascript:void(0);" data-id="{{v.id}}" class="btn btn-danger btn-xs delete">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+    <script src="./libs/http.js"></script>
+    <script>
+        //入口函数
+        $(function () {
+            //显示下拉菜单数据
+            $.ajax({
+                url: BigNew.category_list,
+                success: function (back) {
+                    // console.log(back);
+                    if (back.code == 200) {
+                        var res = template('sb', back)
+                        $('#selCategory').html(res)
+                        // console.log(res);
+                    }
+                }
+            })
+
+            //显示文章数据
+            $.ajax({
+                url: BigNew.article_query,
+                data: {
+                    type: $('#selCategory').val(),
+                    state: $('#selStatus').val(),
+                    page: 1,
+                    perpage: 6
+                },
+                success: function (back) {
+                    console.log(back);
+                    if (back.code == 200) {
+                        $('tbody').html(template('sb1', back))
+                    }
+                }
+            })
+
+            //筛选文章
+            $("#btnSearch").on('click', function (e) {
+
+                //阻止默认跳转
+                e.preventDefault()
+                //显示文章数据
+            $.ajax({
+                url: BigNew.article_query,
+                data: {
+                    type: $('#selCategory').val(),
+                    state: $('#selStatus').val(),
+                    page: 1,
+                    perpage: 6
+                },
+                success: function (back) {
+                    console.log(back);
+                    if (back.code == 200) {
+                        $('tbody').html(template('sb1', back))
+                    }
+                }
+            })
+            })
+        })
+    </script>
 </body>
 
 </html>

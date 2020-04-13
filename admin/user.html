@@ -88,7 +88,7 @@
             $.ajax({
                 url: BigNew.user_detail,
                 success: function (backData) {
-                    console.log(backData);
+                    // console.log(backData);
                     if (backData.code == 200) {
                         console.log(1);
                         $('#inputEmail1').val(backData.data.username)
