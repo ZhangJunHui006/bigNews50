@@ -12,7 +12,8 @@
     <link rel="stylesheet" href="./css/main.css">
     <script src="./libs/jquery-1.12.4.min.js"></script>
     <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
-    <script src="./libs/jquery.twbsPagination.min.js"></script>
+    <!-- <script src="./libs/jquery.twbsPagination.min.js"></script> -->
+    <script src="./libs/jquery.twbsPagination.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
 </head>
@@ -209,7 +210,7 @@
 
 
             //显示文章数据  函数 
-
+            var myPage = 1;
             function getData(myPage, callback) {
                 $.ajax({
                     url: BigNew.article_query,
@@ -217,7 +218,7 @@
                         type: $('#selCategory').val(),
                         state: $('#selStatus').val(),
                         page: myPage,
-                        perpage: 6
+                        perpage: 3
                     },
                     success: function (back) {
                         // console.log(back);
@@ -226,9 +227,12 @@
 
                             if (callback != null && back.data.data.length != 0) {
                                 $("#pagination").show().next('p').hide()
-                                // callback(back)
-                            } else if (back.data.data.length == 0) {
+                                callback(back)
+                            } else if (back.data.data.length == 0 && myPage == 1) {
                                 $("#pagination").hide().next('p').show()
+                            } else if (back.data.totalPage == myPage - 1 && back.data.data.length == 0) {
+                                myPage -= 1
+                                $('#pagination').twbsPagination('changeTotalPages', back.data.totalPage, myPage)
                             }
                         }
                     }
@@ -244,6 +248,7 @@
                     next: '下一页',
                     last: '尾页',
                     onPageClick: function (event, page) {
+                        myPage = page
                         // $('#page-content').text('Page ' + page);
                         //调用ajax 获取当前页码
                         getData(page, null)
@@ -264,24 +269,37 @@
 
             //删除
             $('tbody').on('click', '.delete', function () {
-                //请求ajax删除
-                // console.log($(this).attr('data-id'));
-                var num = parseInt($(this).attr('data-id'))
-                console.log(num);
-                
-                $.ajax({
-                    type: 'post',
-                    url: BigNew.category_delete,
-                    data: {
-                        id: num
-                    },
-                    success: function (back) {
-                        console.log(back);
-                        
-                    }
-                })
+                if (confirm('确定要删除吗?')) {
+                    //请求ajax删除
+                    // console.log($(this).attr('data-id'));
+                    var num = parseInt($(this).attr('data-id'))
+                    console.log(num);
+
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.article_delete,
+                        data: {
+                            id: num
+                        },
+                        success: function (back) {
+                            // console.log(back);
+                            if (back.code == 204) {
+                                alert('删除成功');
+                                getData(myPage, function (back) {
+                                    $('#pagination').twbsPagination('changeTotalPages', back.data.totalPage, myPage)
+                                })
+                            }
+                        }
+                    })
+                }
+            })
+
+            //发表文章点击事件触发
+            $("#release_btn").on('click', function () {
+                parent.$('.level02>li:eq(1)').click()
             })
         })
+
     </script>
 </body>
 
