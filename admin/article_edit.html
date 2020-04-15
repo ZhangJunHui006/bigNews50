@@ -120,17 +120,87 @@
             $.ajax({
                 url: BigNew.category_list,
                 success: function (back) {
-                    console.log(back);
+                    // console.log(back);
                     if (back.code == 200) {
                         var res = template('sb', back)
                         $('.category').html(res)
-                        console.log(res);
+                        // console.log(res);
                     }
                 }
             })
 
-            
-            
+
+            //加载数据到指定地方
+            //通过id获取数据
+            var id = window.location.search.split('=')[1]
+            // console.log(id);
+
+            //请求ajax
+            setTimeout(function () {
+                $.ajax({
+                    url: BigNew.article_search,
+                    data: {
+                        id: id
+                    },
+                    success: function (back) {
+                        // console.log(back);
+                        if (back.code == 200) {
+                            $('#inputTitle').val(back.data.title)
+                            $('.article_cover').attr('src', back.data.cover)
+                            $('select.category').val(back.data.categoryId)
+                            $('#testico').val(back.data.date)
+                            editor.txt.html(back.data.content)
+                        }
+                    }
+                })
+            }, 10)
+
+
+            // 点击修改提交数据
+            $('.btn-edit').on('click', function (e) {
+                e.preventDefault()
+                var fd = new FormData($('form')[0])
+                fd.append('id', id)
+                fd.append('content', editor.txt.html())
+                fd.append('state', '已发布')
+
+                $.ajax({
+                    type: 'post',
+                    url: BigNew.article_edit,
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (back) {
+                        if (back.code == 200) {
+                            alert('修改成功');
+                            window.history.back()
+                        }
+                    }
+                })
+            })
+
+            // 点击草稿提交数据
+            $('.btn-draft').on('click', function (e) {
+                e.preventDefault()
+                var fd = new FormData($('form')[0])
+                fd.append('id', id)
+                fd.append('content', editor.txt.html())
+                fd.append('state', '草稿')
+
+                $.ajax({
+                    type: 'post',
+                    url: BigNew.article_edit,
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (back) {
+                        if (back.code == 200) {
+                            alert('修改成功');
+                            window.history.back()
+                        }
+                    }
+                })
+            })
         })
     </script>
 </body>
